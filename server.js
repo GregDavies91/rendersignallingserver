@@ -11,10 +11,16 @@ app.use(express.json());
 const sessions = {};
 
 app.post('/session/host', (req, res) => {
-  const code = uuidv4().slice(0, 6).toUpperCase();
-  const ws_url = `wss://${req.headers.host}/ws/${code}`;
-  sessions[code] = { clients: [] };
-  res.json({ success: true, code, ws_url });
+  try {
+    const code = uuidv4().slice(0, 6).toUpperCase();
+    const ws_url = `wss://${req.headers.host}/ws/${code}`;
+    sessions[code] = { clients: [] };
+    console.log("Creating session:", code, "URL:", ws_url);
+    res.json({ success: true, code, ws_url });
+  } catch (err) {
+    console.error("❌ Error creating session:", err);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
 });
 
 app.post('/session/join/:code', (req, res) => {
